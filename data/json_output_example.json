@@ -1,0 +1,59 @@
+{
+  "work_log_id": "WL-2026-NPS-S2-002",
+  "logged_by": "Ruslan (proxy submission on behalf of W-001)",
+  "customer_id": "NPS-001",
+  "customer_name": "Nordic Property Services Oy",
+  "contract_id": "NPS-2025-FM01",
+  "site_id": "NPS-S2",
+  "site_name": "Pohjola Business Park (Office Complex)",
+  "worker_id": "W-001",
+  "worker_name": "Pekka Virtanen",
+  "date": "2026-03-13",
+  "service_category": "HVAC",
+  "work_type": "repair",
+  "description": "AC compressor repair — run capacitor replacement. Identified and replaced faulty run capacitor (45uF 440V) on AC compressor unit. No refrigerant handling required. System tested and confirmed operational after repair.",
+  "hours_worked": 4.0,
+  "status": "complete",
+  "billable": true,
+  "billability_reasoning": "In-scope repair under HVAC covered work (Compressor repair and replacement), contract NPS-2025-FM01. Worker W-001 holds valid Electrical Safety Certificate S2. No refrigerant involved. Total cost €332.20 — no approval threshold applies under this contract.",
+  "compliance_flags": [
+    {
+      "type": "proxy_submission",
+      "severity": "info",
+      "message": "Work log submitted by Ruslan on behalf of W-001 (Pekka Virtanen). Verify authorization if required."
+    },
+    {
+      "type": "rate_correction",
+      "severity": "info",
+      "message": "Submitted hourly rate (€100/hr) did not match contract rate (€75/hr). Corrected to €75/hr. Labor total €300.00 unchanged."
+    }
+  ],
+  "materials_used": [
+    {
+      "part_id": "ELC-CAP-01",
+      "name": "Run Capacitor 45uF 440V",
+      "quantity": 1,
+      "unit_price": 28.00,
+      "line_total": 28.00
+    }
+  ],
+  "invoice_item": {
+    "rate_type": "normal",
+    "hourly_rate": 75.00,
+    "hours_worked": 4.0,
+    "labor_cost": 300.00,
+    "materials_cost_before_markup": 28.00,
+    "material_markup_percentage": 15,
+    "materials_cost": 32.20,
+    "travel_cost": 0.00,
+    "travel_note": "Travel included per contract NPS-2025-FM01",
+    "total_cost": 332.20,
+    "requires_approval": false,
+    "certification_verified": true,
+    "certification_detail": "Electrical Safety Certificate S2, valid until 2026-12-31",
+    "validation_notes": [
+      "Proxy submission — logged by Ruslan on behalf of Pekka Virtanen (W-001).",
+      "Hourly rate corrected from €100/hr (submitted) to €75/hr (contract rate). Labor total €300.00 is correct."
+    ]
+  }
+}
