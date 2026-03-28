@@ -5,18 +5,40 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-gray-50 text-gray-900;
     margin: 0;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
   #root {
     min-height: 100svh;
+    min-height: -webkit-fill-available;
+  }
+  /* Prevent iOS zoom on input focus - use 16px minimum */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  @media (min-width: 640px) {
+    input, textarea, select {
+      font-size: 14px !important;
+    }
   }
 }
 
 @layer utilities {
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 16px);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+  .safe-right {
+    padding-right: env(safe-area-inset-right, 0px);
   }
 }

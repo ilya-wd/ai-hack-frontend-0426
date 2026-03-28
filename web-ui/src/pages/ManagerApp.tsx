@@ -18,7 +18,7 @@ export default function ManagerApp() {
   const pendingReview = PLACEHOLDER_LOGS.filter(l => l.status === 'submitted').length;
 
   return (
-    <div className="flex flex-col h-[100svh] max-w-lg mx-auto bg-white shadow-sm">
+    <div className="flex flex-col h-[100svh] w-full sm:max-w-lg sm:mx-auto bg-white sm:shadow-sm">
       <AppHeader />
 
       <div className="flex-1 overflow-y-auto">

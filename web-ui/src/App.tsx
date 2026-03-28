@@ -63,7 +63,7 @@ export default function App() {
   const agentMessageCount = messages.filter(m => m.role === 'agent').length;
 
   return (
-    <div className="flex flex-col h-[100svh] max-w-lg mx-auto bg-white shadow-sm">
+    <div className="flex flex-col h-[100svh] w-full sm:max-w-lg sm:mx-auto bg-white sm:shadow-sm">
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
