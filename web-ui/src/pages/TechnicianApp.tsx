@@ -1,27 +1,31 @@
 import { useState, useCallback } from 'react';
-import { WorkerSelector } from './components/WorkerSelector';
-import { WorkReportForm } from './components/WorkReportForm';
-import { ChatPanel } from './components/ChatPanel';
-import { VoiceButton } from './components/VoiceButton';
-import { useWorkReport } from './hooks/useWorkReport';
-import { useChat } from './hooks/useChat';
-import { useVoiceInput } from './hooks/useVoiceInput';
-import { agentService } from './services/mockAgent';
-import type { FormState } from './types/form';
+import { WorkerSelector } from '../components/WorkerSelector';
+import { WorkReportForm } from '../components/WorkReportForm';
+import { ChatPanel } from '../components/ChatPanel';
+import { VoiceButton } from '../components/VoiceButton';
+import { AppHeader } from '../components/AppHeader';
+import { useWorkReport } from '../hooks/useWorkReport';
+import { useChat } from '../hooks/useChat';
+import { useVoiceInput } from '../hooks/useVoiceInput';
+import { useAgentMode } from '../context/AgentModeContext';
+import type { FormState } from '../types/form';
 
-export default function App() {
+export default function TechnicianApp() {
   const [workerId, setWorkerId] = useState('W-002');
   const [chatOpen, setChatOpen] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [textInput, setTextInput] = useState('');
+  const [liveError, setLiveError] = useState<string | null>(null);
 
+  const { agentService } = useAgentMode();
   const { form, sections, clarification, applyAgentResponse, updateField, reset } = useWorkReport(workerId);
   const { messages, addMessage, reset: resetChat } = useChat();
 
   const handleTranscript = useCallback(async (text: string) => {
     addMessage('worker', text);
     setIsLoading(true);
+    setLiveError(null);
     try {
       const response = await agentService.sendMessage(text, {
         worker_id: workerId,
@@ -30,10 +34,14 @@ export default function App() {
       }, form);
       addMessage('agent', response.message);
       applyAgentResponse(response);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to reach agent';
+      setLiveError(msg);
+      addMessage('agent', `⚠️ ${msg}`);
     } finally {
       setIsLoading(false);
     }
-  }, [workerId, form, addMessage, applyAgentResponse]);
+  }, [agentService, workerId, form, addMessage, applyAgentResponse]);
 
   const { state: voiceState, error: voiceError, isSupported, start, stop } = useVoiceInput({
     onTranscript: handleTranscript,
@@ -58,6 +66,7 @@ export default function App() {
     resetChat();
     agentService.reset();
     setSubmitOpen(false);
+    setLiveError(null);
   };
 
   const agentMessageCount = messages.filter(m => m.role === 'agent').length;
@@ -65,33 +74,11 @@ export default function App() {
   return (
     <div className="flex flex-col h-[100svh] max-w-lg mx-auto bg-white shadow-sm">
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🔧</span>
-          <h1 className="font-bold text-gray-900 text-base">Work Report</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleNewReport}
-            className="text-xs text-gray-500 hover:text-gray-700 font-medium"
-          >
-            New report
-          </button>
-          <button
-            onClick={() => setChatOpen(true)}
-            className="relative text-xl"
-            aria-label="Open conversation"
-          >
-            💬
-            {agentMessageCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center h-4 w-4 bg-red-500 text-white text-[10px] rounded-full font-bold">
-                {agentMessageCount}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
+      <AppHeader
+        onNewReport={handleNewReport}
+        onOpenChat={() => setChatOpen(true)}
+        chatBadge={agentMessageCount}
+      />
 
       {/* Worker selector */}
       <WorkerSelector value={workerId} onChange={handleWorkerChange} />
@@ -107,11 +94,11 @@ export default function App() {
 
       {/* Bottom input bar */}
       <div className="px-4 pt-3 pb-4 bg-white border-t border-gray-100 safe-bottom space-y-2">
-        {voiceError && (
-          <p className="text-xs text-red-500 text-center">{voiceError}</p>
+        {(voiceError || liveError) && (
+          <p className="text-xs text-red-500 text-center">{voiceError || liveError}</p>
         )}
 
-        {/* Text input fallback */}
+        {/* Text input */}
         <div className="flex gap-2">
           <input
             type="text"

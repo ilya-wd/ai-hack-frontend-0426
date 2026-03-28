@@ -1,15 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage } from '../../types';
 import { MessageBubble } from './MessageBubble';
 
 interface Props {
   messages: ChatMessage[];
   isOpen: boolean;
+  isLoading?: boolean;
   onClose: () => void;
+  onSend: (text: string) => void;
 }
 
-export function ChatPanel({ messages, isOpen, onClose }: Props) {
+export function ChatPanel({ messages, isOpen, isLoading, onClose, onSend }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -18,6 +21,13 @@ export function ChatPanel({ messages, isOpen, onClose }: Props) {
   }, [messages, isOpen]);
 
   if (!isOpen) return null;
+
+  const handleSend = () => {
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput('');
+    onSend(text);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-gray-50">
@@ -45,7 +55,35 @@ export function ChatPanel({ messages, isOpen, onClose }: Props) {
         ) : (
           messages.map(msg => <MessageBubble key={msg.id} message={msg} />)
         )}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-gray-400 text-sm px-3 py-2">
+            <span className="inline-block w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+            Agent is thinking…
+          </div>
+        )}
         <div ref={bottomRef} />
+      </div>
+
+      {/* Input bar */}
+      <div className="px-4 pt-3 pb-4 bg-white border-t border-gray-200 safe-bottom">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            placeholder="Type a message…"
+            className="flex-1 rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            className="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium disabled:opacity-40 active:scale-95 transition-transform"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );
