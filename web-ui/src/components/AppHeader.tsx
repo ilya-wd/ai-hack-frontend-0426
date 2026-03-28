@@ -5,9 +5,11 @@ interface AppHeaderProps {
   onNewReport?: () => void;
   onOpenChat?: () => void;
   chatBadge?: number;
+  voiceoverEnabled?: boolean;
+  onToggleVoiceover?: () => void;
 }
 
-export function AppHeader({ onNewReport, onOpenChat, chatBadge }: AppHeaderProps) {
+export function AppHeader({ onNewReport, onOpenChat, chatBadge, voiceoverEnabled, onToggleVoiceover }: AppHeaderProps) {
   const { mode, toggle } = useAgentMode();
   const location = useLocation();
   const isWorker = location.pathname === '/' || location.pathname === '/worker';
@@ -48,6 +50,16 @@ export function AppHeader({ onNewReport, onOpenChat, chatBadge }: AppHeaderProps
         )}
 
         {/* Worker-only controls */}
+        {isWorker && onToggleVoiceover && (
+          <button
+            onClick={onToggleVoiceover}
+            className={`text-lg ${voiceoverEnabled ? 'opacity-100' : 'opacity-40'}`}
+            aria-label={voiceoverEnabled ? 'Disable voiceover' : 'Enable voiceover'}
+            title={voiceoverEnabled ? 'Voiceover on — click to mute' : 'Voiceover off — click to enable'}
+          >
+            {voiceoverEnabled ? '🔊' : '🔇'}
+          </button>
+        )}
         {isWorker && onNewReport && (
           <button
             onClick={onNewReport}

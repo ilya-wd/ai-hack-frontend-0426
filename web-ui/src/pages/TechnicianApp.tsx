@@ -7,8 +7,11 @@ import { AppHeader } from '../components/AppHeader';
 import { useWorkReport } from '../hooks/useWorkReport';
 import { useChat } from '../hooks/useChat';
 import { useVoiceInput } from '../hooks/useVoiceInput';
+import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis';
 import { useAgentMode } from '../context/AgentModeContext';
 import type { FormState } from '../types/form';
+
+const VOICEOVER_KEY = 'nanoclaw_voiceover_enabled';
 
 export default function TechnicianApp() {
   const [workerId, setWorkerId] = useState('W-002');
@@ -17,10 +20,23 @@ export default function TechnicianApp() {
   const [isLoading, setIsLoading] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [liveError, setLiveError] = useState<string | null>(null);
+  const [voiceoverEnabled, setVoiceoverEnabled] = useState(() => {
+    return localStorage.getItem(VOICEOVER_KEY) !== 'false';
+  });
 
   const { agentService } = useAgentMode();
   const { form, sections, clarification, applyAgentResponse, updateField, reset } = useWorkReport(workerId);
   const { messages, addMessage, reset: resetChat } = useChat();
+  const { speak, stop: stopSpeaking } = useSpeechSynthesis();
+
+  const toggleVoiceover = useCallback(() => {
+    setVoiceoverEnabled(prev => {
+      const next = !prev;
+      localStorage.setItem(VOICEOVER_KEY, String(next));
+      if (!next) stopSpeaking();
+      return next;
+    });
+  }, [stopSpeaking]);
 
   const handleTranscript = useCallback(async (text: string) => {
     addMessage('worker', text);
@@ -34,6 +50,9 @@ export default function TechnicianApp() {
       }, form);
       addMessage('agent', response.message);
       applyAgentResponse(response);
+      if (voiceoverEnabled) {
+        speak(response.message);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to reach agent';
       setLiveError(msg);
@@ -41,7 +60,7 @@ export default function TechnicianApp() {
     } finally {
       setIsLoading(false);
     }
-  }, [agentService, workerId, form, addMessage, applyAgentResponse]);
+  }, [agentService, workerId, form, addMessage, applyAgentResponse, voiceoverEnabled, speak]);
 
   const { state: voiceState, error: voiceError, isSupported, start, stop } = useVoiceInput({
     onTranscript: handleTranscript,
@@ -78,6 +97,8 @@ export default function TechnicianApp() {
         onNewReport={handleNewReport}
         onOpenChat={() => setChatOpen(true)}
         chatBadge={agentMessageCount}
+        voiceoverEnabled={voiceoverEnabled}
+        onToggleVoiceover={toggleVoiceover}
       />
 
       {/* Worker selector */}
