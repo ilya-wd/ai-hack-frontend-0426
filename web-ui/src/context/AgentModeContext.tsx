@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { AgentService } from '../types/agent';
 import { MockAgentService } from '../services/mockAgent';
-import { NanoclawAgentService } from '../services/nanoclawAgent';
+import { HttpAgentService } from '../services/httpAgent';
 
 export type AgentMode = 'mock' | 'live';
 
@@ -17,7 +17,7 @@ const AgentModeContext = createContext<AgentModeContextValue | null>(null);
 const STORAGE_KEY = 'nanoclaw_agent_mode';
 
 function createService(mode: AgentMode): AgentService {
-  return mode === 'live' ? new NanoclawAgentService() : new MockAgentService();
+  return mode === 'live' ? new HttpAgentService() : new MockAgentService();
 }
 
 export function AgentModeProvider({ children }: { children: ReactNode }) {
