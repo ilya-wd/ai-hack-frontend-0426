@@ -19,8 +19,5 @@ export class MockAgentService implements AgentService {
   }
 }
 
-import { HttpAgentService } from './httpAgent';
-
-// Switch between mock and live backend
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_AGENT === 'true';
-export const agentService: AgentService = USE_MOCK ? new MockAgentService() : new HttpAgentService();
+// Singleton — used by App.tsx; TechnicianApp uses AgentModeContext instead
+export const agentService: AgentService = new MockAgentService();
