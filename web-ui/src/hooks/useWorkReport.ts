@@ -11,7 +11,14 @@ export function useWorkReport(workerId: string) {
 
   const applyAgentResponse = useCallback((response: AgentResponse) => {
     if (Object.keys(response.fieldUpdates).length > 0) {
-      setForm(prev => ({ ...prev, ...response.fieldUpdates }));
+      const updates = { ...response.fieldUpdates };
+      if (updates.compliance_flags && !Array.isArray(updates.compliance_flags)) {
+        updates.compliance_flags = [updates.compliance_flags];
+      }
+      if (updates.materials && !Array.isArray(updates.materials)) {
+        updates.materials = [updates.materials];
+      }
+      setForm(prev => ({ ...prev, ...updates }));
     }
     if (Object.keys(response.sectionsToShow).length > 0) {
       setSections(prev => ({ ...prev, ...response.sectionsToShow }));
